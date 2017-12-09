@@ -11,28 +11,36 @@ import java.util.*;
 
 public class Model extends Observable { //Enspricht dem gesamten Flughafen und -raum
 
-    static List<Planes> pList = new ArrayList<Planes>();
+    public List<Planes> pList = new ArrayList<Planes>();
     /*List<Planes> pWarteList = new ArrayList<Planes>();
     List<Planes> pExistList = new ArrayList<Planes>();
     */
-    static List<Generators> gList = new ArrayList<Generators>();
-    static Map<String,Nodes> nMap = new HashMap<>();
-    public void identify(){
-        //TODO: etwas mit put um die Schlüsselnamen auf die anderen Attribute zu setzten
-    }
 
-    static JSONObject load_json_file(String path) throws IOException {
+    //public Planes planes = new Planes(new String[5], 0);
+
+    public List<Generators> gList = new ArrayList<Generators>();
+    public Map<String,Nodes> nMap = new HashMap<>();
+    public Map<String,Nodes> nnMap = new HashMap<>();
+
+
+
+    JSONObject load_json_file(String path) throws IOException {
         String jsonString = new String(Files.readAllBytes(Paths.get(path)));
+        JSONObject object=new JSONObject(jsonString);
+        read_maxplanes(object);
+        read_planes(object);
+        read_nodes(object);
+        read_generators(object);
         return (new JSONObject(jsonString));
     }
 
-    static int read_maxplanes(JSONObject JSONInt){
+    public int read_maxplanes(JSONObject JSONInt){
         int maxplanes = JSONInt.getInt("maxplanes");
         System.out.println(maxplanes);
         return maxplanes;
     }
 
-    static void read_panes(JSONObject jsonObject){
+    public void read_planes(JSONObject jsonObject){
         //Get planes from JSONObject, für alles JSON KLassen
         JSONArray planes = jsonObject.optJSONArray("planes");
         //Iterate over all planes
@@ -59,11 +67,10 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
             Planes aplane = new Planes(awaypoints, initTime);
             pList.add(aplane);
 
-
         }
     }
 
-    static void read_generators(JSONObject jsonObject){
+    public void read_generators(JSONObject jsonObject){
         //Get generators from JSONObject, für alles JSON KLassen
         JSONArray generators = jsonObject.optJSONArray("generators");
         //Iterate over all generators
@@ -93,7 +100,7 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
     }
 
 
-    static void read_nodes(JSONObject jsonObject){
+    public void read_nodes(JSONObject jsonObject){
         //Get nodes from JSONObject, für alles JSON KLassen
         JSONArray nodes = jsonObject.optJSONArray("nodes");
         //Iterate over all nodes
@@ -119,20 +126,77 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
             String kind = node.getString("kind");
             System.out.println(kind);
 
-            //extract to from node:
+            //extract to from node
             JSONArray to = node.getJSONArray("to");
             System.out.println(to);
             List<String> ato = new ArrayList<String>();
             for (int j=0; j<to.length(); j++){
                 ato.add((String) to.get(j));
             }
+
+            /*//extract conflicts from node
+            JSONArray conflicts = node.getJSONArray("conflicts");
+            List<String> aconflicts = new ArrayList<String>();
+            for (int j=0; j<conflicts.length(); j++) {
+                aconflicts.add((String) conflicts.get(j));
+            }
+
+            double waittime = node.getDouble("waittime");
+
+            String targettype = node.getString("targettype");
+
             //System.out.println(to.get(0)+" "+to.get(to.length()-1));
+            */
 
             //füge neue Nodeobjekte mit den von JSON übergebenen Attributen der Arraylist hinzu
             Nodes anode = new Nodes(x, y, name, kind, ato);
+            /*Nodes bnode = new Nodes(x, y, name, kind, ato, aconflicts);
+            Nodes cnode = new Nodes(x, y, name, kind, ato, waittime);
+            Nodes dnode = new Nodes(x, y, name, kind, ato, targettype);
+            Nodes enode = new Nodes(x, y, name, kind, ato, aconflicts, waittime);
+            Nodes fnode = new Nodes(x, y, name, kind, ato, aconflicts, targettype);
+            Nodes gnode = new Nodes(x, y, name, kind, ato, waittime, targettype);
+            Nodes hnode = new Nodes(x, y, name, kind, ato, aconflicts, waittime, targettype);
+            */
             nMap.put(name, anode);
+            /*nMap.put(name, bnode);
+            nMap.put(name, cnode);
+            nMap.put(name, dnode);
+            nMap.put(name, enode);
+            nMap.put(name, fnode);
+            nMap.put(name, gnode);
+            nMap.put(name, hnode);
+            */
+            nnMap.put(name, anode);
 
         }
+    }
+
+    public void move(){
+
+        /*for (Planes p : pList){
+            p.setNodesList((List<Nodes>) nMap);
+            p.getNodesList().add(nMap.targettype);
+        }*/
+
+        /*for (String name : nMap.keySet()){
+            Nodes nodes = nMap.get(name);
+            for (Planes p : pList) {
+                p.setPx(30*nodes.getX()+300);
+                p.setPy(30*nodes.getY()+300);
+
+                for (int i = 0; i < nodes.getTo().size(); i++) {
+                    String keyName = nodes.getTo().get(i);
+                    Nodes nachbarn = nnMap.get(keyName);
+                    p.setPx(30*nachbarn.getX()+290);
+                    p.setPy(30*nachbarn.getY()+290);
+                    name = keyName;
+                    //gc.strokeLine(30*nodes.getX()+305, 30*nodes.getY()+305, 30*nachbarn.getX()+305,30*nachbarn.getY()+305);
+                }
+            }
+        }*/
+        setChanged();
+        notifyObservers();
     }
 
 
@@ -145,7 +209,8 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
 
 
 
-    /*public void update(){
-        System.out.println("Methoden, die immer ausgeführt werden sollen.");
-    }*/
+    public void update(){
+        //Methoden, die immer ausgeführt werden sollen.
+        this.move();
+    }
 }

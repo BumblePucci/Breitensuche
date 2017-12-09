@@ -15,8 +15,8 @@ public class Controller implements Observer {
         this.model = model;
         this.view = view;
 
-        KeyFrame drawframe = new KeyFrame(Duration.seconds(0.01), event->{
-            //model.update();
+        KeyFrame drawframe = new KeyFrame(Duration.seconds(1), event->{
+            model.update();
             view.updateCanvas();
         });
         Timeline t1 = new Timeline(drawframe);

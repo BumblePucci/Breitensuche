@@ -9,24 +9,13 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         Model model = new Model();
+        String path="../Chaos-Flughafen-2/src/small.json";
+        JSONObject jsonObject1 = model.load_json_file(path);
         View view = new View(model, stage);
         new Controller(model, view);
     }
 
     public static void main(String[] args) throws IOException {
-        Model model = new Model();
-        JSONObject jsonObject1 = model.load_json_file("C:/Users/Lisa/IdeaProjects/Chaos-Flughafen-2/src/small.json");
-        model.read_maxplanes(jsonObject1);
-
-        JSONObject jsonObject2 = model.load_json_file("C:/Users/Lisa/IdeaProjects/Chaos-Flughafen-2/src/small.json");
-        model.read_panes(jsonObject2);
-
-        JSONObject jsonObject3 = model.load_json_file("C:/Users/Lisa/IdeaProjects/Chaos-Flughafen-2/src/small.json");
-        model.read_nodes(jsonObject3);
-
-        JSONObject jsonObject4 = model.load_json_file("C:/Users/Lisa/IdeaProjects/Chaos-Flughafen-2/src/small.json");
-        model.read_generators(jsonObject4);
-
         launch(args);
     }
 

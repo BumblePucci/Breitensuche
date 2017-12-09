@@ -22,9 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import org.JSONException;
-import org.JSONObject;
-
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -40,7 +37,7 @@ public class Property {
      * @return JSONObject
      * @throws JSONException
      */
-    public static JSONObject toJSONObject(java.util.Properties properties) throws JSONException {
+    public static JSONObject toJSONObject(Properties properties) throws JSONException {
         // can't use the new constructor for Android support
         // JSONObject jo = new JSONObject(properties == null ? 0 : properties.size());
         JSONObject jo = new JSONObject();

@@ -1,6 +1,17 @@
 package org;
 
 import java.io.Closeable;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
+import java.util.Map.Entry;
 
 /*
  Copyright (c) 2002 JSON.org
@@ -25,18 +36,6 @@ import java.io.Closeable;
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * A JSONObject is an unordered collection of name/value pairs. Its external

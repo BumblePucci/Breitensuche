@@ -44,14 +44,14 @@ public class JSONML {
     private static Object parse(
         XMLTokener x,
         boolean    arrayForm,
-        JSONArray  ja,
+        JSONArray ja,
         boolean keepStrings
     ) throws JSONException {
         String     attribute;
         char       c;
         String     closeTag = null;
         int        i;
-        JSONArray  newja = null;
+        JSONArray newja = null;
         JSONObject newjo = null;
         Object     token;
         String     tagName = null;
@@ -472,7 +472,7 @@ public class JSONML {
     public static String toString(JSONObject jo) throws JSONException {
         StringBuilder sb = new StringBuilder();
         int                 i;
-        JSONArray           ja;
+        JSONArray ja;
         int                 length;
         Object              object;
         String              tagName;

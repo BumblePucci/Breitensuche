@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Observable;
+import java.util.*;
 
 public class Nodes extends Observable {
 
@@ -9,17 +7,84 @@ public class Nodes extends Observable {
     private String name;
     private String kind;
     private List<String> to;
-    //private List<Nodes.name> conflicts = List<name>;  //optional
-    //private double waittime;    //optional
-    //private String targettype;  //optional
+    private List<String> conflicts;  //optional
+    private double waittime;    //optional
+    private String targettype;  //optional
 
-    //public Nodes (double x, double y, String name, String kind, List to, List, conflicts, double waittime, String targettype)
     public Nodes (double x, double y, String name, String kind, List<String> to){
         this.x = x;
         this.y = y;
         this.name = name;
         this.kind = kind;
         this.to = to;
+    }
+
+    public Nodes (double x, double y, String name, String kind, List<String> to, List<String> conflicts){
+        this.x = x;
+        this.y = y;
+        this.name = name;
+        this.kind = kind;
+        this.to = to;
+        this.conflicts = conflicts;
+    }
+
+    public Nodes (double x, double y, String name, String kind, List<String> to, double waittime){
+        this.x = x;
+        this.y = y;
+        this.name = name;
+        this.kind = kind;
+        this.to = to;
+        this.waittime = waittime;
+    }
+
+    public Nodes (double x, double y, String name, String kind, List<String> to, String targettype){
+        this.x = x;
+        this.y = y;
+        this.name = name;
+        this.kind = kind;
+        this.to = to;
+        this.targettype = targettype;
+    }
+
+    public Nodes (double x, double y, String name, String kind, List<String> to, List<String> conflicts, double waittime){
+        this.x = x;
+        this.y = y;
+        this.name = name;
+        this.kind = kind;
+        this.to = to;
+        this.conflicts = conflicts;
+        this.waittime = waittime;
+    }
+
+    public Nodes (double x, double y, String name, String kind, List<String> to, List<String> conflicts, String targettype){
+        this.x = x;
+        this.y = y;
+        this.name = name;
+        this.kind = kind;
+        this.to = to;
+        this.conflicts = conflicts;
+        this.targettype = targettype;
+    }
+
+    public Nodes (double x, double y, String name, String kind, List<String> to, double waittime, String targettype){
+        this.x = x;
+        this.y = y;
+        this.name = name;
+        this.kind = kind;
+        this.to = to;
+        this.waittime = waittime;
+        this.targettype = targettype;
+    }
+
+    public Nodes (double x, double y, String name, String kind, List<String> to, List<String> conflicts, double waittime, String targettype){
+        this.x = x;
+        this.y = y;
+        this.name = name;
+        this.kind = kind;
+        this.to = to;
+        this.conflicts = conflicts;
+        this.waittime = waittime;
+        this.targettype = targettype;
     }
 
 
