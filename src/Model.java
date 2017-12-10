@@ -139,7 +139,8 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
             JSONArray conflicts = new JSONArray();
             List<String> aconflicts = new ArrayList<>();
             if(node.has("conflicts")) {
-                node.getJSONArray("conflicts");
+                conflicts = node.getJSONArray("conflicts");
+                System.out.println("conflicts:" + conflicts);
 
                 for (int j=0; j<conflicts.length(); j++) {
                     aconflicts.add((String) conflicts.get(j));
@@ -149,11 +150,13 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
             double waittime = 0.0;
             if(node.has("waittime")){
                 waittime = node.getDouble("waittime");
+                System.out.println("waittime = " + waittime);
             }
 
             String targettype = "";
             if(node.has("targettype")) {
                 targettype = node.getString("targettype");
+                System.out.println("targettype: " + targettype);
             }
 
             //System.out.println(to.get(0)+" "+to.get(to.length()-1));
