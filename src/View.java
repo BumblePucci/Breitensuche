@@ -1,5 +1,7 @@
 import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.util.Duration;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -20,20 +22,24 @@ public class View implements Observer {
     Canvas canvas;
     Pane pane;
 
-    public View (Model model, Stage stage){
+    public View(Model model, Stage stage) {
         this.model = model;
         this.stage = stage;
 
-        canvas = new Canvas(600,600);
-        pane = new Pane (canvas);
+        canvas = new Canvas(600, 600);
+        pane = new Pane(canvas);
 
-        Scene scene = new Scene(pane, 600,600);
+        Scene scene = new Scene(pane, 600, 600);
         stage.setTitle("Flughafen");
         stage.setScene(scene);
         stage.show();
         updateCanvas();
+        model.pList.get(0).setCurrentNode(model.nMap.get(model.pList.get(0).getWaypoints().getFirst()));
+        model.pList.get(0).getWaypoints().removeFirst();
+        model.breadthSearch(model.pList.get(0));
 
-        KeyFrame drawframe = new KeyFrame(Duration.seconds(0.001), event->{
+        KeyFrame drawframe = new KeyFrame(Duration.seconds(1), (ActionEvent event) -> {
+
             //das Flugzeug bewegt sich innerhalb zweier Nodes
         });
         Timeline t2 = new Timeline(drawframe);
@@ -42,7 +48,7 @@ public class View implements Observer {
 
     }
 
-    public void updateCanvas(){
+    public void updateCanvas() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.BLUE);
         //Male für jedes Flugzeug ein "Flugzeug-Dummie"
@@ -52,8 +58,8 @@ public class View implements Observer {
         }
         gc.setFill(Color.RED);
         //Erstmal Node-Dummie
-        for (Nodes n : model.nMap.values()){
-            gc.fillOval(30*n.getX()+300, 30*n.getY()+300, 10, 10);  //erst auskommentieren, wenn x, y Getter haben
+        for (Nodes n : model.nMap.values()) {
+            gc.fillOval(30 * n.getX() + 300, 30 * n.getY() + 300, 10, 10);  //erst auskommentieren, wenn x, y Getter haben
             //relative Anzeige: Hilfe möglciher Weise im Aufgabenblatt: erster Hinweispunkt unter c)
         }
 
@@ -62,20 +68,22 @@ public class View implements Observer {
         //for (Nodes n : model.nMap.values()){
         //    gc.strokeLine(n.getX(), n.getY(), n.getTo());
         //}
-        for (String name : model.nMap.keySet()){
+        for (String name : model.nMap.keySet()) {
             Nodes nodes = model.nMap.get(name);
-            for (int i=0; i<nodes.getTo().size(); i++) {
+            for (int i = 0; i < nodes.getTo().size(); i++) {
                 String keyName = nodes.getTo().get(i);
                 Nodes nachbarn = model.nnMap.get(keyName);
-                gc.strokeLine(30*nodes.getX()+305, 30*nodes.getY()+305, 30*nachbarn.getX()+305,30*nachbarn.getY()+305);
+                gc.strokeLine(30 * nodes.getX() + 305, 30 * nodes.getY() + 305, 30 * nachbarn.getX() + 305, 30 * nachbarn.getY() + 305);
             }
         }
     }
 
 
-
-    public void update(Observable o, Object arg){
+    public void update(Observable o, Object arg) {
     }
-    public Stage getStage() { return stage;}
+
+    public Stage getStage() {
+        return stage;
+    }
 
 }

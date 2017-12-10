@@ -19,14 +19,13 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
     //public Planes planes = new Planes(new String[5], 0);
 
     public List<Generators> gList = new ArrayList<Generators>();
-    public Map<String,Nodes> nMap = new HashMap<>();
-    public Map<String,Nodes> nnMap = new HashMap<>();
-
+    public Map<String, Nodes> nMap = new HashMap<>();
+    public Map<String, Nodes> nnMap = new HashMap<>();
 
 
     JSONObject load_json_file(String path) throws IOException {
         String jsonString = new String(Files.readAllBytes(Paths.get(path)));
-        JSONObject object=new JSONObject(jsonString);
+        JSONObject object = new JSONObject(jsonString);
         read_maxplanes(object);
         read_planes(object);
         read_nodes(object);
@@ -34,17 +33,17 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
         return (new JSONObject(jsonString));
     }
 
-    public int read_maxplanes(JSONObject JSONInt){
+    public int read_maxplanes(JSONObject JSONInt) {
         int maxplanes = JSONInt.getInt("maxplanes");
         System.out.println(maxplanes);
         return maxplanes;
     }
 
-    public void read_planes(JSONObject jsonObject){
+    public void read_planes(JSONObject jsonObject) {
         //Get planes from JSONObject, für alles JSON KLassen
         JSONArray planes = jsonObject.optJSONArray("planes");
         //Iterate over all planes
-        for (int i=0; i<planes.length(); i++){
+        for (int i = 0; i < planes.length(); i++) {
 
             //description of one plane
             JSONObject plane = planes.getJSONObject(i);
@@ -52,10 +51,10 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
 
             //extract waypoints from plane:
             JSONArray waypoints = plane.getJSONArray("waypoints");
-            String[] awaypoints = new String[waypoints.length()];
+            ArrayDeque<String> awaypoints = new ArrayDeque<>();
 
-            for (int j=0; j<waypoints.length(); j++) {
-                awaypoints[j] = (String) waypoints.get(j);
+            for (int j = 0; j < waypoints.length(); j++) {
+                awaypoints.add((String) waypoints.get(j));
             }
             System.out.println(waypoints.get(0) + " " + waypoints.get(waypoints.length() - 1));
 
@@ -70,11 +69,11 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
         }
     }
 
-    public void read_generators(JSONObject jsonObject){
+    public void read_generators(JSONObject jsonObject) {
         //Get generators from JSONObject, für alles JSON KLassen
         JSONArray generators = jsonObject.optJSONArray("generators");
         //Iterate over all generators
-        for (int i=0; i<generators.length(); i++){
+        for (int i = 0; i < generators.length(); i++) {
 
             //description of one generator
             JSONObject generator = generators.getJSONObject(i);
@@ -84,7 +83,7 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
             JSONArray waypoints = generator.getJSONArray("waypoints");
             String[] awaypoints = new String[waypoints.length()];
 
-            for (int j=0; j<waypoints.length(); j++) {
+            for (int j = 0; j < waypoints.length(); j++) {
                 awaypoints[j] = (String) waypoints.get(j);
             }
             System.out.println(waypoints.get(0) + " " + waypoints.get(waypoints.length() - 1));
@@ -100,11 +99,11 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
     }
 
 
-    public void read_nodes(JSONObject jsonObject){
+    public void read_nodes(JSONObject jsonObject) {
         //Get nodes from JSONObject, für alles JSON KLassen
         JSONArray nodes = jsonObject.optJSONArray("nodes");
         //Iterate over all nodes
-        for (int i=0; i<nodes.length(); i++){
+        for (int i = 0; i < nodes.length(); i++) {
 
             //description of one node
             JSONObject node = nodes.getJSONObject(i);
@@ -130,7 +129,7 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
             JSONArray to = node.getJSONArray("to");
             System.out.println(to);
             List<String> ato = new ArrayList<>();
-            for (int j=0; j<to.length(); j++){
+            for (int j = 0; j < to.length(); j++) {
                 ato.add((String) to.get(j));
             }
 
@@ -138,23 +137,23 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
 
             JSONArray conflicts = new JSONArray();
             List<String> aconflicts = new ArrayList<>();
-            if(node.has("conflicts")) {
+            if (node.has("conflicts")) {
                 conflicts = node.getJSONArray("conflicts");
                 System.out.println("conflicts:" + conflicts);
 
-                for (int j=0; j<conflicts.length(); j++) {
+                for (int j = 0; j < conflicts.length(); j++) {
                     aconflicts.add((String) conflicts.get(j));
                 }
             }
 
             double waittime = 0.0;
-            if(node.has("waittime")){
+            if (node.has("waittime")) {
                 waittime = node.getDouble("waittime");
                 System.out.println("waittime = " + waittime);
             }
 
             String targettype = "";
-            if(node.has("targettype")) {
+            if (node.has("targettype")) {
                 targettype = node.getString("targettype");
                 System.out.println("targettype: " + targettype);
             }
@@ -187,12 +186,34 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
         }
     }
 
-    public void move(){
+    public List<Nodes> breadthSearch(Planes plane) {
+        Nodes current = plane.getCurrentNode(); //die aktuelle node auf der sich das plane befindet
+        String target = plane.getWaypoints().peekFirst(); //der waypoint zu dem wir wollen
+        List<Nodes> nodeList = new ArrayList<>();
+        Deque<String> way = new ArrayDeque<>();
 
-        /*for (Planes p : pList){
-            p.setNodesList((List<Nodes>) nMap);
-            p.getNodesList().add(nMap.targettype);
-        }*/
+        //geht alle wege durch speichert es in einer liste und vergleicht die größe mit alternativen
+        while (!current.getTargettype().equals(target)) {
+            way.addAll(current.getTo());
+            current = nMap.get(way.peekFirst());
+            nodeList.add(current);
+            way.removeFirst();
+        }
+
+        plane.getWaypoints().removeFirst();
+        System.out.print("NodeLIst:");
+        for (Nodes n : nodeList) {
+            System.out.print(n.getName() + ",");
+        }
+        System.out.println("");
+        plane.setCurrentNode(nodeList.get(nodeList.size() - 1));
+        plane.setNodesList(nodeList);
+        return nodeList;
+    }
+
+    public void move() {
+
+
 
         /*for (String name : nMap.keySet()){
             Nodes nodes = nMap.get(name);
@@ -210,6 +231,12 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
                 }
             }
         }*/
+
+        /*for(Nodes node : pList.get(0).getNodesList())
+        {
+            pList.get(0).setPx(30*node.getX()+300);
+            pList.get(0).setPy(30*node.getY()+300);
+        }*/
         setChanged();
         notifyObservers();
     }
@@ -223,8 +250,7 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
     }*/
 
 
-
-    public void update(){
+    public void update() {
         //Methoden, die immer ausgeführt werden sollen.
         this.move();
     }

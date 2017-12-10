@@ -1,24 +1,27 @@
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
 public class Planes extends Observable {
 
-    private String[] waypoints;
+    private ArrayDeque<String> waypoints;
     private int inittime;
     private double px, py;
     private List<Nodes> nodesList;
+    private Nodes currentNode;
 
-    public Planes (String[] waypoints, int inittime){
+
+    public Planes(ArrayDeque<String> waypoints, int inittime) {
         this.waypoints = waypoints;
         this.inittime = inittime;
     }
 
-    public String[] getWaypoints() {
+    public ArrayDeque<String> getWaypoints() {
         return waypoints;
     }
 
-    public void setWaypoints(String[] waypoints) {
+    public void setWaypoints(ArrayDeque<String> waypoints) {
         this.waypoints = waypoints;
     }
 
@@ -53,4 +56,14 @@ public class Planes extends Observable {
     public void setNodesList(List<Nodes> nodesList) {
         this.nodesList = nodesList;
     }
+
+    public Nodes getCurrentNode() {
+        return currentNode;
+    }
+
+    public void setCurrentNode(Nodes currentNode) {
+        this.currentNode = currentNode;
+    }
+
+
 }
