@@ -11,7 +11,7 @@ import java.util.*;
 
 public class Model extends Observable { //Enspricht dem gesamten Flughafen und -raum
 
-    public List<Planes> pList = new ArrayList<Planes>();
+    public List<Planes> pList = new ArrayList<>();
     /*List<Planes> pWarteList = new ArrayList<Planes>();
     List<Planes> pExistList = new ArrayList<Planes>();
     */
@@ -129,36 +129,48 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
             //extract to from node
             JSONArray to = node.getJSONArray("to");
             System.out.println(to);
-            List<String> ato = new ArrayList<String>();
+            List<String> ato = new ArrayList<>();
             for (int j=0; j<to.length(); j++){
                 ato.add((String) to.get(j));
             }
 
-            /*//extract conflicts from node
-            JSONArray conflicts = node.getJSONArray("conflicts");
-            List<String> aconflicts = new ArrayList<String>();
-            for (int j=0; j<conflicts.length(); j++) {
-                aconflicts.add((String) conflicts.get(j));
+            //extract conflicts from node
+
+            JSONArray conflicts = new JSONArray();
+            List<String> aconflicts = new ArrayList<>();
+            if(node.has("conflicts")) {
+                node.getJSONArray("conflicts");
+
+                for (int j=0; j<conflicts.length(); j++) {
+                    aconflicts.add((String) conflicts.get(j));
+                }
             }
 
-            double waittime = node.getDouble("waittime");
+            double waittime = 0.0;
+            if(node.has("waittime")){
+                waittime = node.getDouble("waittime");
+            }
 
-            String targettype = node.getString("targettype");
+            String targettype = "";
+            if(node.has("targettype")) {
+                targettype = node.getString("targettype");
+            }
 
             //System.out.println(to.get(0)+" "+to.get(to.length()-1));
-            */
 
             //füge neue Nodeobjekte mit den von JSON übergebenen Attributen der Arraylist hinzu
-            Nodes anode = new Nodes(x, y, name, kind, ato);
+            //Nodes anode = new Nodes(x, y, name, kind, ato);
             /*Nodes bnode = new Nodes(x, y, name, kind, ato, aconflicts);
             Nodes cnode = new Nodes(x, y, name, kind, ato, waittime);
-            Nodes dnode = new Nodes(x, y, name, kind, ato, targettype);
-            Nodes enode = new Nodes(x, y, name, kind, ato, aconflicts, waittime);
-            Nodes fnode = new Nodes(x, y, name, kind, ato, aconflicts, targettype);
-            Nodes gnode = new Nodes(x, y, name, kind, ato, waittime, targettype);
-            Nodes hnode = new Nodes(x, y, name, kind, ato, aconflicts, waittime, targettype);
             */
-            nMap.put(name, anode);
+            //Nodes dnode = new Nodes(x, y, name, kind, ato, targettype);
+            /*Nodes enode = new Nodes(x, y, name, kind, ato, aconflicts, waittime);
+            Nodes fnode = new Nodes(x, y, name, kind, ato, aconflicts, targettype);
+            Nodes gnode = new Nodes(x, y, name, kind, ato, waittime, targettype);*/
+
+            Nodes hnode = new Nodes(x, y, name, kind, ato, aconflicts, waittime, targettype);
+
+            nMap.put(name, hnode);
             /*nMap.put(name, bnode);
             nMap.put(name, cnode);
             nMap.put(name, dnode);
@@ -167,7 +179,7 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
             nMap.put(name, gnode);
             nMap.put(name, hnode);
             */
-            nnMap.put(name, anode);
+            nnMap.put(name, hnode);
 
         }
     }
