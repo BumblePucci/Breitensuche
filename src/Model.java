@@ -1,10 +1,7 @@
-import javafx.scene.transform.Scale;
 import org.JSONArray;
 import org.JSONObject;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -19,31 +16,32 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
     //public Planes planes = new Planes(new String[5], 0);
 
     public List<Generators> gList = new ArrayList<Generators>();
-    public Map<String, Nodes> nMap = new HashMap<>();
-    public Map<String, Nodes> nnMap = new HashMap<>();
+    public Map<String,Nodes> nMap = new HashMap<>();
+    public Map<String,Nodes> nachbarnNMap = new HashMap<>();
 
+    public double bigTick = 1;
+    public double partTick = bigTick*0.001;
 
-    JSONObject load_json_file(String path) throws IOException {
+    void load_json_file(String path) throws IOException {
         String jsonString = new String(Files.readAllBytes(Paths.get(path)));
-        JSONObject object = new JSONObject(jsonString);
+        JSONObject object=new JSONObject(jsonString);
         read_maxplanes(object);
         read_planes(object);
         read_nodes(object);
         read_generators(object);
-        return (new JSONObject(jsonString));
     }
 
-    public int read_maxplanes(JSONObject JSONInt) {
+    public int read_maxplanes(JSONObject JSONInt){
         int maxplanes = JSONInt.getInt("maxplanes");
         System.out.println(maxplanes);
         return maxplanes;
     }
 
-    public void read_planes(JSONObject jsonObject) {
+    public void read_planes(JSONObject jsonObject){
         //Get planes from JSONObject, für alles JSON KLassen
         JSONArray planes = jsonObject.optJSONArray("planes");
         //Iterate over all planes
-        for (int i = 0; i < planes.length(); i++) {
+        for (int i=0; i<planes.length(); i++){
 
             //description of one plane
             JSONObject plane = planes.getJSONObject(i);
@@ -69,11 +67,11 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
         }
     }
 
-    public void read_generators(JSONObject jsonObject) {
+    public void read_generators(JSONObject jsonObject){
         //Get generators from JSONObject, für alles JSON KLassen
         JSONArray generators = jsonObject.optJSONArray("generators");
         //Iterate over all generators
-        for (int i = 0; i < generators.length(); i++) {
+        for (int i=0; i<generators.length(); i++){
 
             //description of one generator
             JSONObject generator = generators.getJSONObject(i);
@@ -83,7 +81,7 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
             JSONArray waypoints = generator.getJSONArray("waypoints");
             String[] awaypoints = new String[waypoints.length()];
 
-            for (int j = 0; j < waypoints.length(); j++) {
+            for (int j=0; j<waypoints.length(); j++) {
                 awaypoints[j] = (String) waypoints.get(j);
             }
             System.out.println(waypoints.get(0) + " " + waypoints.get(waypoints.length() - 1));
@@ -99,11 +97,11 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
     }
 
 
-    public void read_nodes(JSONObject jsonObject) {
+    public void read_nodes(JSONObject jsonObject){
         //Get nodes from JSONObject, für alles JSON KLassen
         JSONArray nodes = jsonObject.optJSONArray("nodes");
         //Iterate over all nodes
-        for (int i = 0; i < nodes.length(); i++) {
+        for (int i=0; i<nodes.length(); i++){
 
             //description of one node
             JSONObject node = nodes.getJSONObject(i);
@@ -128,8 +126,8 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
             //extract to from node
             JSONArray to = node.getJSONArray("to");
             System.out.println(to);
-            List<String> ato = new ArrayList<>();
-            for (int j = 0; j < to.length(); j++) {
+            List<String> ato = new ArrayList<String>();
+            for (int j=0; j<to.length(); j++){
                 ato.add((String) to.get(j));
             }
 
@@ -137,51 +135,43 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
 
             JSONArray conflicts = new JSONArray();
             List<String> aconflicts = new ArrayList<>();
-            if (node.has("conflicts")) {
+            if(node.has("conflicts")) {
                 conflicts = node.getJSONArray("conflicts");
                 System.out.println("conflicts:" + conflicts);
 
-                for (int j = 0; j < conflicts.length(); j++) {
+                for (int j=0; j<conflicts.length(); j++) {
                     aconflicts.add((String) conflicts.get(j));
                 }
             }
 
             double waittime = 0.0;
-            if (node.has("waittime")) {
+            if(node.has("waittime")){
                 waittime = node.getDouble("waittime");
                 System.out.println("waittime = " + waittime);
             }
 
             String targettype = "";
-            if (node.has("targettype")) {
+            if(node.has("targettype")) {
                 targettype = node.getString("targettype");
                 System.out.println("targettype: " + targettype);
             }
 
             //System.out.println(to.get(0)+" "+to.get(to.length()-1));
 
+
             //füge neue Nodeobjekte mit den von JSON übergebenen Attributen der Arraylist hinzu
-            //Nodes anode = new Nodes(x, y, name, kind, ato);
+            //Nodes hnode = new Nodes(x, y, name, kind, ato);
             /*Nodes bnode = new Nodes(x, y, name, kind, ato, aconflicts);
             Nodes cnode = new Nodes(x, y, name, kind, ato, waittime);
-            */
-            //Nodes dnode = new Nodes(x, y, name, kind, ato, targettype);
-            /*Nodes enode = new Nodes(x, y, name, kind, ato, aconflicts, waittime);
+            Nodes dnode = new Nodes(x, y, name, kind, ato, targettype);
+            Nodes enode = new Nodes(x, y, name, kind, ato, aconflicts, waittime);
             Nodes fnode = new Nodes(x, y, name, kind, ato, aconflicts, targettype);
-            Nodes gnode = new Nodes(x, y, name, kind, ato, waittime, targettype);*/
-
-            Nodes hnode = new Nodes(x, y, name, kind, ato, aconflicts, waittime, targettype);
-
-            nMap.put(name, hnode);
-            /*nMap.put(name, bnode);
-            nMap.put(name, cnode);
-            nMap.put(name, dnode);
-            nMap.put(name, enode);
-            nMap.put(name, fnode);
-            nMap.put(name, gnode);
-            nMap.put(name, hnode);
+            Nodes gnode = new Nodes(x, y, name, kind, ato, waittime, targettype);
             */
-            nnMap.put(name, hnode);
+            Nodes anode = new Nodes(x, y, name, kind, ato, aconflicts, waittime, targettype);
+
+            nMap.put(name, anode);
+            nachbarnNMap.put(name, anode);
 
         }
     }
@@ -211,9 +201,79 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
         return nodeList;
     }
 
-    public void move() {
+    public double getMinX() {
+        double minX = 0;
+        for (String name1 : nMap.keySet()){
+            Nodes n1 = nMap.get(name1);
+            for (String name2 : nMap.keySet()){
+                Nodes n2 = nMap.get(name2);
+                if (n2.getX()<n1.getX()){
+                    minX=n2.getX();
+                }
+            }
+        }
+        return minX;
+    }
+
+    /*public double getMinY(){
+        double minY = 0;
+        for (int j=0; j<nMap.keySet().size(); j++){
+            if(j==0){
+                minY = nMap.keySet();
+            }
+        }
+    }*/
+
+    public double getMinY(){
+        double minY = 0;
+        for (String name1 : nMap.keySet()){
+            Nodes n1 = nMap.get(name1);
+            for (String name2 : nMap.keySet()){
+                Nodes n2 = nMap.get(name2);
+                if (n2.getY()<n1.getY()){
+                    minY=n2.getY();
+                }
+            }
+        }
+        return minY;
+    }
+
+    public double getMaxX(){
+        double maxX = 0;
+        for (String name1 : nMap.keySet()) {
+            Nodes n1 = nMap.get(name1);
+            for (String name2 : nMap.keySet()) {
+                Nodes n2 = nMap.get(name2);
+                if (n2.getX()>n1.getX()){
+                    maxX=n2.getX();
+                }
+            }
+        }
+        return maxX;
+    }
+
+    public double getMaxY() {
+        double maxY = 0;
+        for (String name1 : nMap.keySet()) {
+            Nodes n1 = nMap.get(name1);
+            for (String name2 : nMap.keySet()) {
+                Nodes n2 = nMap.get(name2);
+                if (n2.getY() > n1.getY()) {
+                    maxY=n2.getY();
+                }
+            }
+        }
+        return maxY;
+    }
 
 
+
+    public void move(){
+
+        /*for (Planes p : pList){
+            p.setNodesList((List<Nodes>) nMap);
+            p.getNodesList().add(nMap.targettype);
+        }*/
 
         /*for (String name : nMap.keySet()){
             Nodes nodes = nMap.get(name);
@@ -223,7 +283,7 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
 
                 for (int i = 0; i < nodes.getTo().size(); i++) {
                     String keyName = nodes.getTo().get(i);
-                    Nodes nachbarn = nnMap.get(keyName);
+                    Nodes nachbarn = nachbarnNMap.get(keyName);
                     p.setPx(30*nachbarn.getX()+290);
                     p.setPy(30*nachbarn.getY()+290);
                     name = keyName;
@@ -231,16 +291,9 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
                 }
             }
         }*/
-
-        /*for(Nodes node : pList.get(0).getNodesList())
-        {
-            pList.get(0).setPx(30*node.getX()+300);
-            pList.get(0).setPy(30*node.getY()+300);
-        }*/
         setChanged();
         notifyObservers();
     }
-
 
 
     /*public void beispielmethode(){
@@ -250,8 +303,13 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
     }*/
 
 
-    public void update() {
+
+    public void update(){
         //Methoden, die immer ausgeführt werden sollen.
         this.move();
+        System.out.println("MinX: "+getMinX());
+        System.out.println("MaxX: "+getMaxX());
+        System.out.println("MinY: "+getMinY());
+        System.out.println("MaxY: "+getMaxY());
     }
 }
