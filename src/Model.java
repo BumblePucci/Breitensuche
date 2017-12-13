@@ -201,6 +201,7 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
         return nodeList;
     }
 
+
     public double getMinX() {
         double minX = 0;
         for (String name1 : nMap.keySet()){
@@ -267,33 +268,16 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
     }
 
 
-
+    /*TODO: für jedes Planes die breadthSearch durch laufen
     public void move(){
 
-        /*for (Planes p : pList){
-            p.setNodesList((List<Nodes>) nMap);
-            p.getNodesList().add(nMap.targettype);
-        }*/
+        for (Planes p : pList){
+            this.breadthSearch(p);
+        }
 
-        /*for (String name : nMap.keySet()){
-            Nodes nodes = nMap.get(name);
-            for (Planes p : pList) {
-                p.setPx(30*nodes.getX()+300);
-                p.setPy(30*nodes.getY()+300);
-
-                for (int i = 0; i < nodes.getTo().size(); i++) {
-                    String keyName = nodes.getTo().get(i);
-                    Nodes nachbarn = nachbarnNMap.get(keyName);
-                    p.setPx(30*nachbarn.getX()+290);
-                    p.setPy(30*nachbarn.getY()+290);
-                    name = keyName;
-                    //gc.strokeLine(30*nodes.getX()+305, 30*nodes.getY()+305, 30*nachbarn.getX()+305,30*nachbarn.getY()+305);
-                }
-            }
-        }*/
         setChanged();
         notifyObservers();
-    }
+    }*/
 
 
     /*public void beispielmethode(){
@@ -306,7 +290,7 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
 
     public void update(){
         //Methoden, die immer ausgeführt werden sollen.
-        this.move();
+        //this.move();
         System.out.println("MinX: "+getMinX());
         System.out.println("MaxX: "+getMaxX());
         System.out.println("MinY: "+getMinY());
