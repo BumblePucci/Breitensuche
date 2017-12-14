@@ -82,13 +82,21 @@ public class View implements Observer {
         stage.show();
         updateCanvas();
         //Lisas Teil
-        /*model.pList.get(0).setCurrentNode(model.nMap.get(model.pList.get(0).getWaypoints().getFirst()));
-        model.pList.get(0).getWaypoints().removeFirst();
-        model.breadthSearch(model.pList.get(0));
-        */
+        Nodes current = null;
+        Planes firstPlane = model.pList.get(0);
+        for(Nodes node : model.nMap.values())
+        {
+            if(firstPlane.getWaypoints().peekFirst().equals(node.getTargettype()))
+            {
+                current = node;
+            }
+        }
+        firstPlane.setCurrentNode(current);
+        model.breadthSearch(firstPlane);
+        model.breadthSearch(firstPlane);
 
         KeyFrame drawframe = new KeyFrame(Duration.seconds(model.partTick), event->{
-            System.out.print("-");
+            //System.out.print("-");
             viewPlanes.moveBetweenNodes(model.partTick);
             updateCanvas();
             updatePlane();

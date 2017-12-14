@@ -176,21 +176,76 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
         }
     }
 
-    public List<Nodes> breadthSearch(Planes plane) {
+    public void breadthSearch(Planes plane) {
+        plane.getWaypoints().removeFirst();
         Nodes current = plane.getCurrentNode(); //die aktuelle node auf der sich das plane befindet
         String target = plane.getWaypoints().peekFirst(); //der waypoint zu dem wir wollen
         List<Nodes> nodeList = new ArrayList<>();
-        Deque<String> way = new ArrayDeque<>();
+        List<List<String>> currentPaths = new ArrayList<>();
+        List<String> startNode = new ArrayList<>();
+        startNode.add(current.getName());
+        currentPaths.add(startNode);
+
 
         //geht alle wege durch speichert es in einer liste und vergleicht die größe mit alternativen
         while (!current.getTargettype().equals(target)) {
-            way.addAll(current.getTo());
-            current = nMap.get(way.peekFirst());
-            nodeList.add(current);
-            way.removeFirst();
-        }
+            boolean found = false;
+            List<List<String>> newPaths = new ArrayList<>();
+            for (List<String> currentPath : currentPaths) {
 
-        plane.getWaypoints().removeFirst();
+                List<String> getTo = nMap.get(currentPath.get(currentPath.size()-1)).getTo();
+                if(getTo.isEmpty())
+                {
+                    currentPath.remove(currentPath.size()-1);
+                    break;
+                }
+
+                for (String node : getTo) {
+                    if(nMap.get(node).isVisited())
+                    {
+                        continue;
+                    }
+                    List<String> newPath = new ArrayList<>(currentPath);
+                    newPath.add(node);
+                    for(String nodeName : newPath)
+                    {
+                        for(Nodes n : nMap.values())
+                        {
+                            if(n.getName().equals(nodeName))
+                            {
+                                n.setVisited(true);
+                            }
+                        }
+                    }
+                    newPaths.add(newPath);
+                    if(nMap.get(node).getTargettype().equals(target))
+                    {
+                        current = nMap.get(node);
+                        currentPaths = new ArrayList<>(newPaths);
+
+                        found = true;
+                        break;
+
+                    }
+                }
+
+                if(!found)
+                {
+                    currentPaths = new ArrayList<>(newPaths);
+                }
+
+
+            }
+        }
+        for(Nodes n : nMap.values())
+        {
+            n.setVisited(false);
+        }
+        List<String> nodeNames = new ArrayList<>(currentPaths.get(currentPaths.size()-1));
+        for(String nodeName : nodeNames)
+        {
+            nodeList.add(nMap.get(nodeName));
+        }
         System.out.print("NodeLIst:");
         for (Nodes n : nodeList) {
             System.out.print(n.getName() + ",");
@@ -198,7 +253,6 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
         System.out.println("");
         plane.setCurrentNode(nodeList.get(nodeList.size() - 1));
         plane.setNodesList(nodeList);
-        return nodeList;
     }
 
 
@@ -291,9 +345,9 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
     public void update(){
         //Methoden, die immer ausgeführt werden sollen.
         //this.move();
-        System.out.println("MinX: "+getMinX());
+        /*System.out.println("MinX: "+getMinX());
         System.out.println("MaxX: "+getMaxX());
         System.out.println("MinY: "+getMinY());
-        System.out.println("MaxY: "+getMaxY());
+        System.out.println("MaxY: "+getMaxY());*/
     }
 }
