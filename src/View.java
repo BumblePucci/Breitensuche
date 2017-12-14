@@ -26,7 +26,7 @@ public class View implements Observer {
     double wNodes;
     double hNodes;
     int zoom;
-    int zoomFactor;
+    double zoomFactor;
     int zoomX;
     int zoomY;
     int shiftX;
