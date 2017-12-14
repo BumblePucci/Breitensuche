@@ -38,6 +38,7 @@ public class View implements Observer {
     double wPlaneImage;
     double hPlaneImage;
     ViewPlanes viewPlanes;
+    List<ViewPlanes> viewPlanesList;
     Image planeImage;
 
     public View (Model model, Stage stage){
@@ -72,6 +73,7 @@ public class View implements Observer {
         }*/
 
         viewPlanes = new ViewPlanes(model.nMap.get("air10"),model.nMap.get("air11"));
+        viewPlanesList = new ArrayList<>();
         planeImage = new Image(getClass().getResourceAsStream("airplane.png"));
 
         canvas = new Canvas(wScene,hScene);
@@ -91,13 +93,42 @@ public class View implements Observer {
             System.out.print("-");
             viewPlanes.moveBetweenNodes(model.partTick);
             updateCanvas();
-            updatePlane();
+            vUpdate();
+            //updatePlane();
         });
         Timeline t2 = new Timeline(drawframe);
         t2.setCycleCount(Timeline.INDEFINITE);
         t2.play();
 
     }
+
+    public void update(){
+        for (ViewPlanes vP : viewPlanesList) {
+            for (Planes p : model.pList) {
+                vP = new ViewPlanes(p.getCurrentNode(), p.getNextNode());
+            }
+        }
+    }
+
+    public void vUpdate(){
+        for (ViewPlanes vP : viewPlanesList) {
+            GraphicsContext gc = canvas.getGraphicsContext2D();
+            Affine affine = new Affine();
+            affine.append(new Scale(zoomFactor, zoomFactor, zoomX, zoomY));
+            affine.append(new Translate(shiftX, shiftY));
+            if (vP.nextNode.getX() - vP.presentNode.getX() > 0) {
+                affine.append(new Rotate(Math.toDegrees(Math.atan((vP.nextNode.getY() - vP.presentNode.getY()) / (vP.nextNode.getX() - vP.presentNode.getX()))) - 180,
+                        (vP.getPlaneX() * zoom / wNodes + wScene / 2 - wNodes / 2) + wNode / 2, (vP.getPlaneY() * zoom / wNodes + hScene / 2 - hNodes / 2) + hNode / 2));
+            } else {
+                affine.append(new Rotate(Math.toDegrees(Math.atan((vP.nextNode.getY() - vP.presentNode.getY()) / (vP.nextNode.getX() - vP.presentNode.getX()))),
+                        (vP.getPlaneX() * zoom / wNodes + wScene / 2 - wNodes / 2) + wNode / 2, (vP.getPlaneY() * zoom / wNodes + hScene / 2 - hNodes / 2) + hNode / 2));
+            }
+            gc.setTransform(affine);
+            //gc.clearRect(viewPlanes.getPlaneX()* zoom / wNodes +wScene/2- wNodes /2,viewPlanes.getPlaneY()* zoom / wNodes +hScene/2- hNodes /2,10,10);
+            gc.drawImage(planeImage, (vP.getPlaneX() * zoom / wNodes + wScene / 2 - wNodes / 2) + wNode / 2 - wPlaneImage / 2, (vP.getPlaneY() * zoom / wNodes + hScene / 2 - hNodes / 2) + hNode / 2 - hPlaneImage / 2, wPlaneImage, hPlaneImage);
+        }
+    }
+
 
     public void updatePlane(){
         GraphicsContext gc = canvas.getGraphicsContext2D();

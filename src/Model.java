@@ -268,16 +268,17 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
     }
 
 
-    /*TODO: für jedes Planes die breadthSearch durch laufen
-    public void move(){
-
+    public void moveFromNodeToNode(){
         for (Planes p : pList){
-            this.breadthSearch(p);
+            p.setNodesList(this.breadthSearch(p));
+            for (Nodes n : p.getNodesList()) {
+                p.setPx(n.getX());
+                p.setPy(n.getY());
+            }
         }
-
         setChanged();
         notifyObservers();
-    }*/
+    }
 
 
     /*public void beispielmethode(){
@@ -290,7 +291,8 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
 
     public void update(){
         //Methoden, die immer ausgeführt werden sollen.
-        //this.move();
+        this.moveFromNodeToNode();
+        //this.genWarteliste();     //Tanjas Teil
         System.out.println("MinX: "+getMinX());
         System.out.println("MaxX: "+getMaxX());
         System.out.println("MinY: "+getMinY());

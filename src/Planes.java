@@ -10,11 +10,13 @@ public class Planes extends Observable {
     private double px, py;
     private List<Nodes> nodesList;
     private Nodes currentNode;
+    private Nodes nextNode;
 
 
     public Planes(ArrayDeque<String> waypoints, int inittime) {
         this.waypoints = waypoints;
         this.inittime = inittime;
+        this.nextNode = this.nodesList.get(0);
     }
 
     public ArrayDeque<String> getWaypoints() {
@@ -65,5 +67,11 @@ public class Planes extends Observable {
         this.currentNode = currentNode;
     }
 
+    public Nodes getNextNode() {
+        return nextNode;
+    }
 
+    public void setNextNode(Nodes nextNode) {
+        this.nextNode = nextNode;
+    }
 }

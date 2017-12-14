@@ -49,9 +49,9 @@ public class Controller implements Observer {
 
         });
 
-        view.canvas.addEventHandler(ScrollEvent.SCROLL, ev -> {
-            double zoomUnit = 1.2;
-            double deltaY = ev.getDeltaY();
+      view.canvas.addEventHandler(ScrollEvent.SCROLL, ev -> {
+          double zoomUnit = 1.2;
+          double deltaY = ev.getDeltaY();
             if (deltaY < 0) {
                 zoomUnit = 2.0 - zoomUnit;
             }
@@ -60,6 +60,7 @@ public class Controller implements Observer {
 
         KeyFrame drawframe = new KeyFrame(Duration.seconds(model.bigTick), event -> {
             model.update();
+            view.update();
             view.updateCanvas();
         });
         Timeline t1 = new Timeline(drawframe);
