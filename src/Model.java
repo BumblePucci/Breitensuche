@@ -324,7 +324,7 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
 
     public void moveFromNodeToNode(){
         for (Planes p : pList){
-            p.setNodesList(this.breadthSearch(p));
+            breadthSearch(p);
             for (Nodes n : p.getNodesList()) {
                 p.setPx(n.getX());
                 p.setPy(n.getY());
@@ -350,6 +350,6 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
         System.out.println("MinX: "+getMinX());
         System.out.println("MaxX: "+getMaxX());
         System.out.println("MinY: "+getMinY());
-        System.out.println("MaxY: "+getMaxY());*/
+        System.out.println("MaxY: "+getMaxY());
     }
 }
