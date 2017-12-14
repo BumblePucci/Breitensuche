@@ -10,6 +10,7 @@ public class Nodes extends Observable {
     private List<String> conflicts;  //optional
     private double waittime;    //optional
     private String targettype;  //optional
+    private boolean visited;
 
     public Nodes(double x, double y, String name, String kind, List<String> to) {
         this.x = x;
@@ -85,6 +86,7 @@ public class Nodes extends Observable {
         this.conflicts = conflicts;
         this.waittime = waittime;
         this.targettype = targettype;
+        this.visited = false;
     }
 
 
@@ -122,6 +124,13 @@ public class Nodes extends Observable {
         return targettype;
     }
 
+    public boolean isVisited() {
+        return visited;
+    }
+
+    public void setVisited(boolean visited) {
+        this.visited = visited;
+    }
 }
 
 
