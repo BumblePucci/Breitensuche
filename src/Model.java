@@ -180,7 +180,7 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
     //Breitensuche
     public void breadthSearch(Planes plane) {
         plane.getWaypoints().removeFirst();
-        Nodes current = plane.getCurrentNode(); //die aktuelle node auf der sich das plane befindet
+        Nodes current = (plane.getCurrentNode() != null) ? plane.getCurrentNode() : nMap.get("einflug"); //die aktuelle node auf der sich das plane befindet
         String target = plane.getWaypoints().peekFirst(); //der waypoint zu dem wir wollen
         List<Nodes> nodeList = new ArrayList<>(); //Liste der Node-Reihenfolge für die Planes
         List<List<String>> currentPaths = new ArrayList<>();//Wird mit allen möglichen Pfaden befüllt
@@ -244,14 +244,14 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
         }
         System.out.println("");
         plane.setCurrentNode(nodeList.get(0));//Plane bekommt als currentNode die Letzte Stelle der Liste
-        plane.setNextNode(nodeList.get(1));
+        plane.setNextNode(nodeList.get(0));
         plane.setNodesList(nodeList);//weist dem Plane die fertige Node Liste zu
     }
 
     //Todo Neu
     //Generiert zufällig neue Flugzeuge und ordnet Sie ein in die Warteliste
     public void generatorFlugzeuge() {
-        for (int i = 0; i <= gList.size(); i++) {
+        for (int i = 0; i < gList.size(); i++) {
             Random ranNum = new Random();
             double random = ranNum.nextDouble();
                 if (gList.get(i).getChance() >= random) {
@@ -343,9 +343,11 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
 
     public void moveFromNodeToNode(){
         for (Planes p : pExistList) {
-            if (p.getNodesList().size()!=0) {
+            if (p.getNodesList().size() != 0) {
                 p.setCurrentNode(p.getNodesList().get(0));
-                p.setNextNode(p.getNodesList().get(1));
+                if (p.getNodesList().size() > 1) {
+                    p.setNextNode(p.getNodesList().get(1));
+                }
                 p.getNodesList().remove(0);
             }
             else{

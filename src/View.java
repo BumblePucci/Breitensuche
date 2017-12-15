@@ -87,21 +87,6 @@ public class View implements Observer {
         stage.setScene(scene);
         stage.show();
         updateCanvas();
-        //Lisas Teil
-       /* Nodes start = null;
-        Planes firstPlane = model.pList.get(0);
-
-        //Bestimmt startpunkt des flugzeugs
-        for(Nodes node : model.nMap.values())
-        {
-            if(firstPlane.getWaypoints().peekFirst().equals(node.getTargettype()))
-            {
-                start = node;
-            }
-        }
-        firstPlane.setCurrentNode(start);
-        model.breadthSearch(firstPlane);//von waypoint 1 zu waypoint 2
-        model.breadthSearch(firstPlane);//von waypoint 2 zu waypoint 3 */
 
         KeyFrame drawframe = new KeyFrame(Duration.seconds(model.partTick), event->{
             System.out.print("-");
@@ -118,6 +103,7 @@ public class View implements Observer {
     }
 
     public void update(){
+        viewPlanesList.clear();
         for (Planes p : model.pExistList) {
             viewPlanesList.add(new ViewPlanes(p.getCurrentNode(), p.getNextNode()));
         }
@@ -138,7 +124,7 @@ public class View implements Observer {
                     (vP.getPlaneX() * zoom / wNodes + wScene / 2 - wNodes / 2) + wNode / 2, (vP.getPlaneY() * zoom / wNodes + hScene / 2 - hNodes / 2) + hNode / 2));
         }
         gc.setTransform(affine);
-        //gc.clearRect(viewPlanes.getPlaneX()* zoom / wNodes +wScene/2- wNodes /2,viewPlanes.getPlaneY()* zoom / wNodes +hScene/2- hNodes /2,10,10);
+        //gc.clearRect(vP.getPlaneX()* zoom / wNodes +wScene/2- wNodes /2,vP.getPlaneY()* zoom / wNodes +hScene/2- hNodes /2,10,10);
         gc.drawImage(planeImage, (vP.getPlaneX() * zoom / wNodes + wScene / 2 - wNodes / 2) + wNode / 2 - wPlaneImage / 2, (vP.getPlaneY() * zoom / wNodes + hScene / 2 - hNodes / 2) + hNode / 2 - hPlaneImage / 2, wPlaneImage, hPlaneImage);
 
     }
