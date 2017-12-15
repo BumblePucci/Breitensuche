@@ -1,4 +1,5 @@
-import java.util.*;
+import java.util.List;
+import java.util.Observable;
 
 public class Nodes extends Observable {
 

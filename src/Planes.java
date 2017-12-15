@@ -16,16 +16,16 @@ public class Planes extends Observable {
     public Planes(ArrayDeque<String> waypoints, int inittime) {
         this.waypoints = waypoints;
         this.inittime = inittime;
-        this.nextNode = this.nodesList.get(0);
+        this.nodesList = new ArrayList<>();
+        this.nextNode = null;
+        //this.nextNode = this.nodesList.get(0);
     }
 
     public ArrayDeque<String> getWaypoints() {
         return waypoints;
     }
 
-    public void setWaypoints(ArrayDeque<String> waypoints) {
-        this.waypoints = waypoints;
-    }
+    public void setWaypoints(ArrayDeque<String> waypoints){this.waypoints = waypoints;}
 
     public int getInittime() {
         return inittime;
@@ -74,4 +74,6 @@ public class Planes extends Observable {
     public void setNextNode(Nodes nextNode) {
         this.nextNode = nextNode;
     }
+
+
 }

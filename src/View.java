@@ -1,17 +1,17 @@
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
-import javafx.util.Duration;
-import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +40,7 @@ public class View implements Observer {
     ViewPlanes viewPlanes;
     List<ViewPlanes> viewPlanesList;
     Image planeImage;
+    Image nodeImage;
 
     public View (Model model, Stage stage){
         this.model = model;
@@ -62,6 +63,8 @@ public class View implements Observer {
         wPlaneImage = 50;
         hPlaneImage = 50;
 
+
+
         /*TODO: für jedes Planes ein ViewPlanes zeichnen
         List<ViewPlanes> viewPlanes = new ArrayList<>();
         for (Planes p : model.pList){
@@ -75,6 +78,7 @@ public class View implements Observer {
         viewPlanes = new ViewPlanes(model.nMap.get("air10"),model.nMap.get("air11"));
         viewPlanesList = new ArrayList<>();
         planeImage = new Image(getClass().getResourceAsStream("airplane.png"));
+        nodeImage = new Image(getClass().getResourceAsStream("nodes.png"));
 
         canvas = new Canvas(wScene,hScene);
         pane = new Pane (canvas);
@@ -84,57 +88,59 @@ public class View implements Observer {
         stage.show();
         updateCanvas();
         //Lisas Teil
-        Nodes current = null;
+       /* Nodes start = null;
         Planes firstPlane = model.pList.get(0);
+
+        //Bestimmt startpunkt des flugzeugs
         for(Nodes node : model.nMap.values())
         {
             if(firstPlane.getWaypoints().peekFirst().equals(node.getTargettype()))
             {
-                current = node;
+                start = node;
             }
         }
-        firstPlane.setCurrentNode(current);
-        model.breadthSearch(firstPlane);
-        model.breadthSearch(firstPlane);
+        firstPlane.setCurrentNode(start);
+        model.breadthSearch(firstPlane);//von waypoint 1 zu waypoint 2
+        model.breadthSearch(firstPlane);//von waypoint 2 zu waypoint 3 */
 
         KeyFrame drawframe = new KeyFrame(Duration.seconds(model.partTick), event->{
-            //System.out.print("-");
-            viewPlanes.moveBetweenNodes(model.partTick);
+            System.out.print("-");
             updateCanvas();
-            vUpdate();
+            for (ViewPlanes vP : viewPlanesList) {
+                vUpdate(vP);
+                vP.moveBetweenNodes(model.partTick);
+            }
             //updatePlane();
         });
         Timeline t2 = new Timeline(drawframe);
         t2.setCycleCount(Timeline.INDEFINITE);
         t2.play();
-
     }
 
     public void update(){
-        for (ViewPlanes vP : viewPlanesList) {
-            for (Planes p : model.pList) {
-                vP = new ViewPlanes(p.getCurrentNode(), p.getNextNode());
-            }
+        for (Planes p : model.pExistList) {
+            viewPlanesList.add(new ViewPlanes(p.getCurrentNode(), p.getNextNode()));
         }
     }
 
-    public void vUpdate(){
-        for (ViewPlanes vP : viewPlanesList) {
-            GraphicsContext gc = canvas.getGraphicsContext2D();
-            Affine affine = new Affine();
-            affine.append(new Scale(zoomFactor, zoomFactor, zoomX, zoomY));
-            affine.append(new Translate(shiftX, shiftY));
-            if (vP.nextNode.getX() - vP.presentNode.getX() > 0) {
-                affine.append(new Rotate(Math.toDegrees(Math.atan((vP.nextNode.getY() - vP.presentNode.getY()) / (vP.nextNode.getX() - vP.presentNode.getX()))) - 180,
-                        (vP.getPlaneX() * zoom / wNodes + wScene / 2 - wNodes / 2) + wNode / 2, (vP.getPlaneY() * zoom / wNodes + hScene / 2 - hNodes / 2) + hNode / 2));
-            } else {
-                affine.append(new Rotate(Math.toDegrees(Math.atan((vP.nextNode.getY() - vP.presentNode.getY()) / (vP.nextNode.getX() - vP.presentNode.getX()))),
-                        (vP.getPlaneX() * zoom / wNodes + wScene / 2 - wNodes / 2) + wNode / 2, (vP.getPlaneY() * zoom / wNodes + hScene / 2 - hNodes / 2) + hNode / 2));
-            }
-            gc.setTransform(affine);
-            //gc.clearRect(viewPlanes.getPlaneX()* zoom / wNodes +wScene/2- wNodes /2,viewPlanes.getPlaneY()* zoom / wNodes +hScene/2- hNodes /2,10,10);
-            gc.drawImage(planeImage, (vP.getPlaneX() * zoom / wNodes + wScene / 2 - wNodes / 2) + wNode / 2 - wPlaneImage / 2, (vP.getPlaneY() * zoom / wNodes + hScene / 2 - hNodes / 2) + hNode / 2 - hPlaneImage / 2, wPlaneImage, hPlaneImage);
+    public void vUpdate(ViewPlanes vP) {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        Affine affine = new Affine();
+        affine.append(new Scale(zoomFactor, zoomFactor, zoomX, zoomY));
+        affine.append(new Translate(shiftX, shiftY));
+
+        //TODO: Flugzeug um 90 Grad drehen
+        if (vP.nextNode.getX() - vP.presentNode.getX() > 0) {
+            affine.append(new Rotate(Math.toDegrees(Math.atan((vP.nextNode.getY() - vP.presentNode.getY()) / (vP.nextNode.getX() - vP.presentNode.getX()))) +90,
+                    (vP.getPlaneX() * zoom / wNodes + wScene / 2 - wNodes / 2) + wNode / 2, (vP.getPlaneY() * zoom / wNodes + hScene / 2 - hNodes / 2) + hNode / 2));
+        } else {
+            affine.append(new Rotate(Math.toDegrees(Math.atan((vP.nextNode.getY() - vP.presentNode.getY()) / (vP.nextNode.getX() - vP.presentNode.getX())))-90,
+                    (vP.getPlaneX() * zoom / wNodes + wScene / 2 - wNodes / 2) + wNode / 2, (vP.getPlaneY() * zoom / wNodes + hScene / 2 - hNodes / 2) + hNode / 2));
         }
+        gc.setTransform(affine);
+        //gc.clearRect(viewPlanes.getPlaneX()* zoom / wNodes +wScene/2- wNodes /2,viewPlanes.getPlaneY()* zoom / wNodes +hScene/2- hNodes /2,10,10);
+        gc.drawImage(planeImage, (vP.getPlaneX() * zoom / wNodes + wScene / 2 - wNodes / 2) + wNode / 2 - wPlaneImage / 2, (vP.getPlaneY() * zoom / wNodes + hScene / 2 - hNodes / 2) + hNode / 2 - hPlaneImage / 2, wPlaneImage, hPlaneImage);
+
     }
 
 
@@ -158,15 +164,17 @@ public class View implements Observer {
 
     public void updateCanvas(){
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        //gc.drawImage(planeImage, 0,0,50,50);
         Affine affine = new Affine();
+        gc.setTransform(affine);
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        affine = new Affine();
         affine.append(new Scale(zoomFactor,zoomFactor,zoomX,zoomY));
         affine.append(new Translate(shiftX, shiftY));
         gc.setTransform(affine);
-        gc.setFill(Color.RED);
         //Erstmal Node-Dummie
         for (Nodes n : model.nMap.values()){
-            gc.fillOval(n.getX()* zoom / wNodes +wScene/2- wNodes /2,n.getY()* zoom / wNodes +hScene/2- hNodes /2,wNode,hNode);
+            gc.drawImage(nodeImage, n.getX()* zoom / wNodes +wScene/2- wNodes /2,n.getY()* zoom / wNodes +hScene/2- hNodes /2,wNode,hNode);
             //gc.fillOval(30*n.getX()+300, 30*n.getY()+300, 10, 10);  //erst auskommentieren, wenn x, y Getter haben
             //relative Anzeige: Hilfe möglciher Weise im Aufgabenblatt: erster Hinweispunkt unter c)
         }

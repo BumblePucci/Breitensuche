@@ -1,12 +1,13 @@
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Observable;
 
 public class Generators extends Observable {
 
     private double chance;
-    private String[] waypoints;
+    private ArrayDeque<String> waypoints;
 
-    public Generators (double chance, String[] waypoints){
+    public Generators (double chance, ArrayDeque<String> waypoints){
         this.chance = chance;
         this.waypoints = waypoints;
 
@@ -14,5 +15,16 @@ public class Generators extends Observable {
             System.out.println("CHANCE IS FALSE: "+chance);
         }
     }
+
+    //todo Neu
+
+    public ArrayDeque<String> getWaypoints(){
+        return waypoints;
+    }
+
+    public double getChance(){
+        return chance;
+    }
+    //todo Neu Ende
 
 }
