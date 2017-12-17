@@ -76,10 +76,10 @@ public class View implements Observer {
         updateCanvas();
 
         KeyFrame drawframe = new KeyFrame(Duration.seconds(model.partTick), event->{
-            updateCanvas();
+            updateCanvas();                             //Methode zur Anzeige der Nodes und Pfade
             for (ViewPlanes vP : viewPlanesList) {
-                vUpdate(vP);
-                vP.moveBetweenNodes(model.partTick);
+                vUpdate(vP);                            //Methode zur Anzeige der Flugzeuge
+                vP.moveBetweenNodes(model.partTick);    //Methode zur Bewegung der ViewPlanes
             }
         });
         Timeline t2 = new Timeline(drawframe);
@@ -95,7 +95,7 @@ public class View implements Observer {
         }
     }
 
-    //Die ViewPlanes werden gezeuchnet
+    //Die ViewPlanes werden gezeichnet
     public void vUpdate(ViewPlanes vP) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         Affine affine = new Affine();

@@ -6,7 +6,7 @@ public class ViewPlanes {
     private double planeY;
     Nodes presentNode;
     Nodes nextNode;
-    int tickCount = 0; // zählt in Schritten von 0-1000
+    int tickCount = 0; // zählt in Schritten von 0-30
 
     public ViewPlanes (Nodes presentNode, Nodes nextNode){
         this.presentNode = presentNode;

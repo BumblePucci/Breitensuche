@@ -6,7 +6,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         Model model = new Model();
-        String path="./src/small.json";
+        String path="./src/big.json";
         model.load_json_file(path);
         View view = new View(model, stage);
         new Controller(model, view);

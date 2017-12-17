@@ -1,11 +1,5 @@
 {
 "maxplanes":24,
-  "planes":[
-    {"waypoints":["einflug","gateway","ausflug"],"inittime":3},
-    {"waypoints":["einflug","gateway","ausflug"],"inittime":7},
-    {"waypoints":["einflug","gateway","ausflug"],"inittime":13},
-    {"waypoints":["einflug","gateway","ausflug"],"inittime":17}
-  ],
 "generators":[
   {"waypoints":["einflug","gateway","ausflug"],"chance":0.005},
   {"waypoints":["einflug","gateway","tanken","gateway","ausflug"],"chance":0.07},
