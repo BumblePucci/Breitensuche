@@ -22,6 +22,7 @@ public class Model extends Observable {
     public double bigTick = 1;
     public double partTick = bigTick/30.0;
     private int ticks = 0;
+    private int maxInit = 0;
 
     //JSON-File wird eingelesen
     void load_json_file(String path) throws IOException {
@@ -40,28 +41,31 @@ public class Model extends Observable {
 
     public void read_planes(JSONObject jsonObject){
         //Get planes from JSONObject, für alles JSON KLassen
-        JSONArray planes = jsonObject.optJSONArray("planes");
-        //Iterate over all planes
-        for (int i=0; i<planes.length(); i++){
+        if (jsonObject.has("planes")) {
+            JSONArray planes = jsonObject.optJSONArray("planes");
 
-            //description of one plane
-            JSONObject plane = planes.getJSONObject(i);
+            //Iterate over all planes
+            for (int i = 0; i < planes.length(); i++) {
 
-            //extract waypoints from plane:
-            JSONArray waypoints = plane.getJSONArray("waypoints");
-            ArrayDeque<String> awaypoints = new ArrayDeque<>();
+                //description of one plane
+                JSONObject plane = planes.getJSONObject(i);
 
-            for (int j = 0; j < waypoints.length(); j++) {
-                awaypoints.add((String) waypoints.get(j));
+                //extract waypoints from plane:
+                JSONArray waypoints = plane.getJSONArray("waypoints");
+                ArrayDeque<String> awaypoints = new ArrayDeque<>();
+
+                for (int j = 0; j < waypoints.length(); j++) {
+                    awaypoints.add((String) waypoints.get(j));
+                }
+
+                //extract inittime from plane:
+                int initTime = plane.getInt("inittime");
+
+                //füge neue Planesobjekte mit den von JSON übergebenen Attributen der Arraylist hinzu
+                Planes aplane = new Planes(awaypoints, initTime);
+                pWarteList.add(aplane);
+
             }
-
-            //extract inittime from plane:
-            int initTime = plane.getInt("inittime");
-
-            //füge neue Planesobjekte mit den von JSON übergebenen Attributen der Arraylist hinzu
-            Planes aplane = new Planes(awaypoints, initTime);
-            pWarteList.add(aplane);
-
         }
     }
 
@@ -191,7 +195,6 @@ public class Model extends Observable {
                 for (String node : getTo) {//jedes Elemnt in getTo wird beobachtet
                     if (nMap.get(node).isVisited()) {
                         continue;//geh zum naechsten Schleifendurchgang
-
                     }
                     List<String> newPath = new ArrayList<>(currentPath);//kopie der currentPath Liste
                     newPath.add(node);//nachbar hinzufuegen
@@ -200,10 +203,7 @@ public class Model extends Observable {
                     for (String nodeName : newPath) {
                         nMap.get(nodeName).setVisited(true);
                     }
-                    if (!newPath.isEmpty()) {
-                        newPaths.add(newPath);//schreibt currentPath+nachbar Liste in newPaths
-                    }
-
+                    newPaths.add(newPath);//schreibt currentPath+nachbar Liste in newPaths
                     if (nMap.get(node).getTargettype().equals(target)) {
                         current = nMap.get(node);//setze current auf die aktuelle Node - damit while Schleife endet
                         currentPaths = new ArrayList<>(newPaths);//weist currentPaths alle Möglichen Wege zu die in newPaths gespeichert sind
@@ -213,7 +213,7 @@ public class Model extends Observable {
                     }
                 }
                 //damit keine weiteren Listen mehr gesucht (und ueberschrieben) werden
-                if (!found && !newPaths.isEmpty()) {
+                if (!found) {
                     currentPaths = new ArrayList<>(newPaths);
                 }
 
@@ -239,14 +239,26 @@ public class Model extends Observable {
         plane.setNextNode(nodeList.get(1));
         plane.setNodesList(nodeList);//weist dem Plane die fertige Node Liste zu
     }
+    // Sucht Größte initTime der Planes
+    public void maxInit (){
+     if(!pWarteList.isEmpty()){
+         for(int i = 0; i < pWarteList.size(); i++){
+             if(maxInit < pWarteList.get(i).getInittime()){
+                 maxInit = pWarteList.get(i).getInittime();
+             }
+         }
+     }
+    }
 
     //Generiert zufällig neue Flugzeuge und ordnet Sie ein in die Warteliste
     public void generatorFlugzeuge() {
         for (int i = 0; i < gList.size(); i++) {
+            maxInit();
             Random ranNum = new Random();
-            double random = ranNum.nextDouble();
+            double random = ranNum.nextDouble(); //generiert zufaellige Zahl zwischen 0 und 1
                 if (gList.get(i).getChance() >= random) {
-                    Planes flieger = new Planes(gList.get(i).getWaypoints(),0);
+                    // Erstellt neues Plane und ordnet es in Warteliste ein
+                    Planes flieger = new Planes(gList.get(i).getWaypoints(), maxInit);
                     pWarteList.add(flieger);
                 }
         }
@@ -343,7 +355,6 @@ public class Model extends Observable {
                     //pExistList.remove(p);
                 }
             }
-
         }
         //Todo löschen aus pExistList
         if(!pFertigList.isEmpty()) {
@@ -352,18 +363,16 @@ public class Model extends Observable {
             }
             pFertigList.clear();
         }
-
         //setChanged();
         //notifyObservers();
     }
 
     public void update(){
         //Methoden, die immer ausgeführt werden sollen.
-        this.ticks++;// Zählt wie oft schon aufgerufen wurde.
+        ticks++;// Zählt wie oft schon aufgerufen wurde.
         generatorFlugzeuge();    //erstellt die Warteliste
         flugzeugeStarten(); // Schreibt Wartende Flugzeuge in die existliste wenn iniTime groß genug ist.
-        this.moveFromNodeToNode();
-        System.out.println("Tick: " + ticks);
-        //System.out.println("Flugzeug an Node");
+        moveFromNodeToNode();
+        System.out.println("Tick"+ticks);
     }
 }

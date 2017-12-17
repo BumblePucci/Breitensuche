@@ -7,7 +7,6 @@ public class Planes extends Observable {
 
     private ArrayDeque<String> waypoints;
     private int inittime;
-    private double px, py;
     private List<Nodes> nodesList;
     private Nodes currentNode;
     private Nodes nextNode;
