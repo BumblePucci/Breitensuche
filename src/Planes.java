@@ -18,37 +18,14 @@ public class Planes extends Observable {
         this.inittime = inittime;
         this.nodesList = new ArrayList<>();
         this.nextNode = null;
-        //this.nextNode = this.nodesList.get(0);
     }
 
     public ArrayDeque<String> getWaypoints() {
         return waypoints;
     }
 
-    public void setWaypoints(ArrayDeque<String> waypoints){this.waypoints = waypoints;}
-
     public int getInittime() {
         return inittime;
-    }
-
-    public void setInittime(int inittime) {
-        this.inittime = inittime;
-    }
-
-    public double getPx() {
-        return px;
-    }
-
-    public void setPx(double px) {
-        this.px = px;
-    }
-
-    public double getPy() {
-        return py;
-    }
-
-    public void setPy(double py) {
-        this.py = py;
     }
 
     public List<Nodes> getNodesList() {

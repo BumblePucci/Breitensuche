@@ -16,7 +16,7 @@ public class ViewPlanes {
     }
 
     public void moveBetweenNodes (double partTick){
-        tickCount = min(tickCount+1,(int) (1./partTick)); // maximal 1/0.001 = 1000 ticks
+        tickCount = min(tickCount+1,(int) (1./partTick)); // maximal = 30 ticks
         this.planeX = presentNode.getX() + (nextNode.getX()- presentNode.getX()) * (partTick*tickCount);
         this.planeY = presentNode.getY() + (nextNode.getY()- presentNode.getY()) * (partTick*tickCount);
     }

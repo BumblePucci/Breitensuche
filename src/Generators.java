@@ -1,5 +1,4 @@
 import java.util.ArrayDeque;
-import java.util.List;
 import java.util.Observable;
 
 public class Generators extends Observable {
@@ -8,7 +7,7 @@ public class Generators extends Observable {
     private ArrayDeque<String> waypoints;
 
     public Generators (double chance, ArrayDeque<String> waypoints){
-        this.chance = chance;
+        this.chance = chance; // Chance kann erhöht werden damit Generator eher auslöst;
         this.waypoints = waypoints;
 
         if (chance<0 || chance>1){
@@ -16,15 +15,11 @@ public class Generators extends Observable {
         }
     }
 
-    //todo Neu
 
     public ArrayDeque<String> getWaypoints(){
         return waypoints;
     }
 
-    public double getChance(){
-        return chance;
-    }
-    //todo Neu Ende
+    public double getChance(){return chance;}
 
 }

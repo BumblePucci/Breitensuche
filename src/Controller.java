@@ -61,7 +61,6 @@ public class Controller implements Observer {
         KeyFrame drawframe = new KeyFrame(Duration.seconds(model.bigTick), event -> {
             model.update();
             view.update();
-            //view.updateCanvas();
         });
         Timeline t1 = new Timeline(drawframe);
         t1.setCycleCount(Timeline.INDEFINITE);

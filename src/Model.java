@@ -6,23 +6,24 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
-public class Model extends Observable { //Enspricht dem gesamten Flughafen und -raum
+public class Model extends Observable {
 
     public List<Planes> pWarteList = new ArrayList<Planes>();
     public List<Planes> pExistList = new ArrayList<Planes>();
-
-
-    //public Planes planes = new Planes(new String[5], 0);
+    public List<Planes> pFertigList = new ArrayList<Planes>();
 
     public List<Generators> gList = new ArrayList<Generators>();
+
     public Map<String,Nodes> nMap = new HashMap<>();
     public Map<String,Nodes> nachbarnNMap = new HashMap<>();
+
     public int maxplanes;
 
     public double bigTick = 1;
     public double partTick = bigTick/30.0;
     private int ticks = 0;
 
+    //JSON-File wird eingelesen
     void load_json_file(String path) throws IOException {
         String jsonString = new String(Files.readAllBytes(Paths.get(path)));
         JSONObject object=new JSONObject(jsonString);
@@ -34,7 +35,6 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
 
     public void read_maxplanes(JSONObject JSONInt){
         int maxplanes = JSONInt.getInt("maxplanes");
-        System.out.println(maxplanes);
         this.maxplanes = maxplanes;
     }
 
@@ -46,7 +46,6 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
 
             //description of one plane
             JSONObject plane = planes.getJSONObject(i);
-            System.out.println(plane);
 
             //extract waypoints from plane:
             JSONArray waypoints = plane.getJSONArray("waypoints");
@@ -55,13 +54,11 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
             for (int j = 0; j < waypoints.length(); j++) {
                 awaypoints.add((String) waypoints.get(j));
             }
-            System.out.println(waypoints.get(0) + " " + waypoints.get(waypoints.length() - 1));
 
             //extract inittime from plane:
             int initTime = plane.getInt("inittime");
-            System.out.println(initTime);
 
-            //füge neue Planeobjekte mit den von JSON übergebenen Attributen der Arraylist hinzu
+            //füge neue Planesobjekte mit den von JSON übergebenen Attributen der Arraylist hinzu
             Planes aplane = new Planes(awaypoints, initTime);
             pWarteList.add(aplane);
 
@@ -76,7 +73,6 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
 
             //description of one generator
             JSONObject generator = generators.getJSONObject(i);
-            System.out.println(generator);
 
             //extract waypoints from generator:
             JSONArray waypoints = generator.getJSONArray("waypoints");
@@ -85,10 +81,9 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
             for (int j=0; j<waypoints.length(); j++) {
                 awaypoints.add((String) waypoints.get(j));
             }
-            System.out.println(waypoints.get(0) + " " + waypoints.get(waypoints.length() - 1));
 
             //extract chance from generator:
-            double chance = generator.getInt("chance");
+            double chance = generator.getDouble("chance");
             System.out.println(chance);
 
             //füge neue Generatorobjekte mit den von JSON übergebenen Attributen der Arraylist hinzu
@@ -106,39 +101,31 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
 
             //description of one node
             JSONObject node = nodes.getJSONObject(i);
-            System.out.println(node);
 
             //extract x from node:
             double x = node.getDouble("x");
-            System.out.println(x);
 
             //extract y from node
             double y = node.getDouble("y");
-            System.out.println(y);
 
             //extract name from node
             String name = node.getString("name");
-            System.out.println(name);
 
             //extract kind from node
             String kind = node.getString("kind");
-            System.out.println(kind);
 
             //extract to from node
             JSONArray to = node.getJSONArray("to");
-            System.out.println(to);
             List<String> ato = new ArrayList<String>();
             for (int j=0; j<to.length(); j++){
                 ato.add((String) to.get(j));
             }
 
             //extract conflicts from node
-
             JSONArray conflicts = new JSONArray();
             List<String> aconflicts = new ArrayList<>();
             if(node.has("conflicts")) {
                 conflicts = node.getJSONArray("conflicts");
-                System.out.println("conflicts:" + conflicts);
 
                 for (int j=0; j<conflicts.length(); j++) {
                     aconflicts.add((String) conflicts.get(j));
@@ -148,27 +135,13 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
             double waittime = 0.0;
             if(node.has("waittime")){
                 waittime = node.getDouble("waittime");
-                System.out.println("waittime = " + waittime);
             }
 
             String targettype = "";
             if(node.has("targettype")) {
                 targettype = node.getString("targettype");
-                System.out.println("targettype: " + targettype);
             }
 
-            //System.out.println(to.get(0)+" "+to.get(to.length()-1));
-
-
-            //füge neue Nodeobjekte mit den von JSON übergebenen Attributen der Arraylist hinzu
-            //Nodes hnode = new Nodes(x, y, name, kind, ato);
-            /*Nodes bnode = new Nodes(x, y, name, kind, ato, aconflicts);
-            Nodes cnode = new Nodes(x, y, name, kind, ato, waittime);
-            Nodes dnode = new Nodes(x, y, name, kind, ato, targettype);
-            Nodes enode = new Nodes(x, y, name, kind, ato, aconflicts, waittime);
-            Nodes fnode = new Nodes(x, y, name, kind, ato, aconflicts, targettype);
-            Nodes gnode = new Nodes(x, y, name, kind, ato, waittime, targettype);
-            */
             Nodes anode = new Nodes(x, y, name, kind, ato, aconflicts, waittime, targettype);
 
             nMap.put(name, anode);
@@ -248,7 +221,6 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
         plane.setNodesList(nodeList);//weist dem Plane die fertige Node Liste zu
     }
 
-    //Todo Neu
     //Generiert zufällig neue Flugzeuge und ordnet Sie ein in die Warteliste
     public void generatorFlugzeuge() {
         for (int i = 0; i < gList.size(); i++) {
@@ -261,7 +233,7 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
         }
     }
 
-    //todo methode die inittime der wartelisten Flugzeuge prüft und SIe dann aufs feld schickt
+    //methode die inittime der wartelisten Flugzeuge prüft und Sie dann aufs feld schickt
     public void flugzeugeStarten(){
         if(!pWarteList.isEmpty()){ // testet ob wartende Flugzeuge vorhanden
             for(int i = 0; i < pWarteList.size(); i++){
@@ -274,7 +246,7 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
         }
     }
 
-
+//Getter für Extremwerte der Koordinaten der Nodes
     public double getMinX() {
         double minX = 0;
         for (String name1 : nMap.keySet()){
@@ -288,15 +260,6 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
         }
         return minX;
     }
-
-    /*public double getMinY(){
-        double minY = 0;
-        for (int j=0; j<nMap.keySet().size(); j++){
-            if(j==0){
-                minY = nMap.keySet();
-            }
-        }
-    }*/
 
     public double getMinY(){
         double minY = 0;
@@ -340,7 +303,7 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
         return maxY;
     }
 
-
+    //Geht durch die existierenden Planes, setzt zum gegebenen Zeitpunkt Current- und NextNodes und führt die Breitensuche aus
     public void moveFromNodeToNode(){
         for (Planes p : pExistList) {
             if (p.getNodesList().size() != 0) {
@@ -355,32 +318,29 @@ public class Model extends Observable { //Enspricht dem gesamten Flughafen und -
                     breadthSearch(p);
                 }
                 else {
-                    pExistList.remove(p);
+                   pFertigList.add(p);
+
+                    //pExistList.remove(p);
                 }
             }
         }
-        setChanged();
-        notifyObservers();
+        //Todo löschen aus pExistList
+        if(!pFertigList.isEmpty()) {
+            for (int i = 0; i < pFertigList.size(); i++) {
+                pExistList.remove(pFertigList.get(i));
+            }
+            pFertigList.clear();
+        }
+        //setChanged();
+        //notifyObservers();
     }
-
-
-    /*public void beispielmethode(){
-        System.out.println("Beispielmethode");
-        setChanged();
-        notifyObservers();
-    }*/
-
-
 
     public void update(){
         //Methoden, die immer ausgeführt werden sollen.
         this.ticks++;// Zählt wie oft schon aufgerufen wurde.
         generatorFlugzeuge();    //erstellt die Warteliste
-        flugzeugeStarten(); // Schreibt Wartende Flugzeuge in die existliste wenn iniTime groß genug is.
+        flugzeugeStarten(); // Schreibt Wartende Flugzeuge in die existliste wenn iniTime groß genug ist.
         this.moveFromNodeToNode();
-        System.out.println("MinX: "+getMinX());
-        System.out.println("MaxX: "+getMaxX());
-        System.out.println("MinY: "+getMinY());
-        System.out.println("MaxY: "+getMaxY());
+        System.out.println("Flugzeug an Node");
     }
 }
