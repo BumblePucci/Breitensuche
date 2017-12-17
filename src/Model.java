@@ -172,7 +172,7 @@ public class Model extends Observable {
             Random randomNodeNr = new Random();
             tmp = startNodes.get(randomNodeNr.nextInt(startNodes.size()));
         }
-        Nodes current = (plane.getCurrentNode() != null) ? plane.getCurrentNode() : tmp;//die aktuelle node auf der sich das plane befindet
+        Nodes current = (plane.getCurrentNode() != null) ? plane.getNodesList().get(0) : tmp;//die aktuelle node auf der sich das plane befindet
         String target = plane.getWaypoints().peekFirst(); //der waypoint zu dem wir wollen
         List<Nodes> nodeList = new ArrayList<>(); //Liste der Node-Reihenfolge für die Planes
         List<List<String>> currentPaths = new ArrayList<>();//Wird mit allen möglichen Pfaden befüllt
@@ -237,7 +237,7 @@ public class Model extends Observable {
         System.out.println("");
         plane.setCurrentNode(nodeList.get(0));//Plane bekommt als currentNode die Letzte Stelle der Liste
         plane.setNextNode(nodeList.get(1));
-        plane.setNodesList(nodeList);//weist dem Plane die fertige Node Liste zu
+        plane.setNodesList(new ArrayList<>(nodeList));//weist dem Plane die fertige Node Liste zu
     }
     // Sucht Größte initTime der Planes
     public void maxInit (){
@@ -258,7 +258,7 @@ public class Model extends Observable {
             double random = ranNum.nextDouble(); //generiert zufaellige Zahl zwischen 0 und 1
                 if (gList.get(i).getChance() >= random) {
                     // Erstellt neues Plane und ordnet es in Warteliste ein
-                    Planes flieger = new Planes(gList.get(i).getWaypoints(), maxInit);
+                    Planes flieger = new Planes(new ArrayDeque<>(gList.get(i).getWaypoints()), maxInit);
                     pWarteList.add(flieger);
                 }
         }
@@ -337,17 +337,18 @@ public class Model extends Observable {
     //Geht durch die existierenden Planes, setzt zum gegebenen Zeitpunkt Current- und NextNodes und führt die Breitensuche aus
     public void moveFromNodeToNode(){
         for (Planes p : pExistList) {
-            if (p.getNodesList().size() >= 1) {
+            if (p.getNodesList().size() > 1) {
                 p.setCurrentNode(p.getNodesList().get(0));
-                if (p.getNodesList().size() > 1) {
-                    p.setNextNode(p.getNodesList().get(1));
-                }
+                p.setNextNode(p.getNodesList().get(1));
                 p.getNodesList().remove(0);
             }
             else{
                 if (!(p.getWaypoints().isEmpty())) {
                     breadthSearch(p);
-                    p.getNodesList().remove(0);
+                    if (p.getNodesList().size() > 1) {
+                        p.getNodesList().remove(0);
+                    }
+
                 }
                 else {
                    pFertigList.add(p);

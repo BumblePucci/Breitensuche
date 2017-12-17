@@ -41,12 +41,12 @@ public class View implements Observer {
     Image planeImage;
     Image nodeImage;
 
-    public View (Model model, Stage stage){
+    public View(Model model, Stage stage) {
         this.model = model;
         this.stage = stage;
 
-        wNodes = Math.abs(model.getMinX()-model.getMaxX());
-        hNodes = Math.abs(model.getMinY()-model.getMaxY());
+        wNodes = Math.abs(model.getMinX() - model.getMaxX());
+        hNodes = Math.abs(model.getMinY() - model.getMaxY());
 
         zoomFactor = 1;
         zoom = 300;
@@ -66,16 +66,16 @@ public class View implements Observer {
         planeImage = new Image(getClass().getResourceAsStream("airplane.png"));
         nodeImage = new Image(getClass().getResourceAsStream("nodes.png"));
 
-        canvas = new Canvas(wScene,hScene);
-        pane = new Pane (canvas);
+        canvas = new Canvas(wScene, hScene);
+        pane = new Pane(canvas);
         pane.setStyle("-fx-background-color: #0176a0");
-        Scene scene = new Scene(pane, wScene,hScene);
+        Scene scene = new Scene(pane, wScene, hScene);
         stage.setTitle("Flughafen");
         stage.setScene(scene);
         stage.show();
         updateCanvas();
 
-        KeyFrame drawframe = new KeyFrame(Duration.seconds(model.partTick), event->{
+        KeyFrame drawframe = new KeyFrame(Duration.seconds(model.partTick), event -> {
             updateCanvas();                             //Methode zur Anzeige der Nodes und Pfade
             for (ViewPlanes vP : viewPlanesList) {
                 vUpdate(vP);                            //Methode zur Anzeige der Flugzeuge
@@ -88,15 +88,12 @@ public class View implements Observer {
     }
 
     //für jedes pExistList-Objekt der Klasse Planes wird ein Objekt der Klasse ViewPlanes der Liste viewPlanesList hinzugefügt
-    public void update(){
-
+    public void update() {
+        viewPlanesList.clear();
         for (Planes p : model.pExistList) {
-            if (p.getCurrentNode() != p.getNextNode()) {
-                viewPlanesList.clear();
+            if (!p.getWaypoints().isEmpty()) {
+                viewPlanesList.add(new ViewPlanes(p.getCurrentNode(), p.getNextNode()));
             }
-
-            viewPlanesList.add(new ViewPlanes(p.getCurrentNode(), p.getNextNode()));
-
 
         }
     }
@@ -109,10 +106,10 @@ public class View implements Observer {
         affine.append(new Translate(shiftX, shiftY));
 
         if (vP.nextNode.getX() - vP.presentNode.getX() > 0) {
-            affine.append(new Rotate(Math.toDegrees(Math.atan((vP.nextNode.getY() - vP.presentNode.getY()) / (vP.nextNode.getX() - vP.presentNode.getX()))) +90,
+            affine.append(new Rotate(Math.toDegrees(Math.atan((vP.nextNode.getY() - vP.presentNode.getY()) / (vP.nextNode.getX() - vP.presentNode.getX()))) + 90,
                     (vP.getPlaneX() * zoom / wNodes + wScene / 2 - wNodes / 2) + wNode / 2, (vP.getPlaneY() * zoom / wNodes + hScene / 2 - hNodes / 2) + hNode / 2));
-        } else {
-            affine.append(new Rotate(Math.toDegrees(Math.atan((vP.nextNode.getY() - vP.presentNode.getY()) / (vP.nextNode.getX() - vP.presentNode.getX())))-90,
+        } else if (vP.nextNode.getX() - vP.presentNode.getX() < 0) {
+            affine.append(new Rotate(Math.toDegrees(Math.atan((vP.nextNode.getY() - vP.presentNode.getY()) / (vP.nextNode.getX() - vP.presentNode.getX()))) - 90,
                     (vP.getPlaneX() * zoom / wNodes + wScene / 2 - wNodes / 2) + wNode / 2, (vP.getPlaneY() * zoom / wNodes + hScene / 2 - hNodes / 2) + hNode / 2));
         }
         gc.setTransform(affine);
@@ -121,29 +118,29 @@ public class View implements Observer {
     }
 
     //Nodes und Pfade werden gezeichnet
-    public void updateCanvas(){
+    public void updateCanvas() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         Affine affine = new Affine();
         gc.setTransform(affine);
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         affine = new Affine();
-        affine.append(new Scale(zoomFactor,zoomFactor,zoomX,zoomY));
+        affine.append(new Scale(zoomFactor, zoomFactor, zoomX, zoomY));
         affine.append(new Translate(shiftX, shiftY));
         gc.setTransform(affine);
-        for (Nodes n : model.nMap.values()){
-            gc.drawImage(nodeImage, n.getX()* zoom / wNodes +wScene/2- wNodes /2,n.getY()* zoom / wNodes +hScene/2- hNodes /2,wNode,hNode);
+        for (Nodes n : model.nMap.values()) {
+            gc.drawImage(nodeImage, n.getX() * zoom / wNodes + wScene / 2 - wNodes / 2, n.getY() * zoom / wNodes + hScene / 2 - hNodes / 2, wNode, hNode);
         }
 
         gc.setStroke(Color.DARKGRAY);
-        for (String name : model.nMap.keySet()){
+        for (String name : model.nMap.keySet()) {
             Nodes nodes = model.nMap.get(name);
-            for (int i=0; i<nodes.getTo().size(); i++) {
+            for (int i = 0; i < nodes.getTo().size(); i++) {
                 String keyName = nodes.getTo().get(i);
                 Nodes nachbarn = model.nachbarnNMap.get(keyName);
-                gc.strokeLine(nodes.getX()* zoom / wNodes +(wScene/2+wNode/2)- wNodes /2,
-                        nodes.getY()* zoom / wNodes +(hScene/2+hNode/2)- hNodes /2,
-                        nachbarn.getX()* zoom / wNodes +(wScene/2+wNode/2)- wNodes /2,
-                        nachbarn.getY()* zoom / wNodes +(hScene/2+hNode/2)- hNodes /2);
+                gc.strokeLine(nodes.getX() * zoom / wNodes + (wScene / 2 + wNode / 2) - wNodes / 2,
+                        nodes.getY() * zoom / wNodes + (hScene / 2 + hNode / 2) - hNodes / 2,
+                        nachbarn.getX() * zoom / wNodes + (wScene / 2 + wNode / 2) - wNodes / 2,
+                        nachbarn.getY() * zoom / wNodes + (hScene / 2 + hNode / 2) - hNodes / 2);
             }
         }
     }
