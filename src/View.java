@@ -89,9 +89,15 @@ public class View implements Observer {
 
     //für jedes pExistList-Objekt der Klasse Planes wird ein Objekt der Klasse ViewPlanes der Liste viewPlanesList hinzugefügt
     public void update(){
-        viewPlanesList.clear();
+
         for (Planes p : model.pExistList) {
+            if (p.getCurrentNode() != p.getNextNode()) {
+                viewPlanesList.clear();
+            }
+
             viewPlanesList.add(new ViewPlanes(p.getCurrentNode(), p.getNextNode()));
+
+
         }
     }
 

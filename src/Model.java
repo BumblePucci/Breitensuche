@@ -152,8 +152,23 @@ public class Model extends Observable {
 
     //Breitensuche
     public void breadthSearch(Planes plane) {
-        plane.getWaypoints().removeFirst();
-        Nodes current = (plane.getCurrentNode() != null) ? plane.getCurrentNode() : nMap.get("einflug"); //die aktuelle node auf der sich das plane befindet
+        String firstWaypoint = plane.getWaypoints().removeFirst();
+        if (plane.getWaypoints().isEmpty()) {
+            return;
+        }
+        Nodes tmp = null;
+        if (plane.getCurrentNode() == null) {
+            List<Nodes> startNodes = new ArrayList<>();
+            for (Nodes n : nMap.values()) {
+                if (n.getTargettype().equals(firstWaypoint)) {
+                    startNodes.add(n);
+
+                }
+            }
+            Random randomNodeNr = new Random();
+            tmp = startNodes.get(randomNodeNr.nextInt(startNodes.size()));
+        }
+        Nodes current = (plane.getCurrentNode() != null) ? plane.getCurrentNode() : tmp;//die aktuelle node auf der sich das plane befindet
         String target = plane.getWaypoints().peekFirst(); //der waypoint zu dem wir wollen
         List<Nodes> nodeList = new ArrayList<>(); //Liste der Node-Reihenfolge für die Planes
         List<List<String>> currentPaths = new ArrayList<>();//Wird mit allen möglichen Pfaden befüllt
@@ -170,12 +185,13 @@ public class Model extends Observable {
                 List<String> getTo = nMap.get(currentPath.get(currentPath.size() - 1)).getTo(); //Naechst moegliche Nodes (nachbaren) abrufen
                 if (getTo.isEmpty()) {
                     currentPath.remove(currentPath.size() - 1);//loesche Letzte Stelle in der currentPath Liste, falls kein Nachbar vorhanden
-                    break;//bricht aktuelle Schleife ab (Fehler Ausflug vermeiden)
+                    continue;//bricht aktuelle Schleife ab (Fehler Ausflug vermeiden)
                 }
 
                 for (String node : getTo) {//jedes Elemnt in getTo wird beobachtet
                     if (nMap.get(node).isVisited()) {
                         continue;//geh zum naechsten Schleifendurchgang
+
                     }
                     List<String> newPath = new ArrayList<>(currentPath);//kopie der currentPath Liste
                     newPath.add(node);//nachbar hinzufuegen
@@ -184,7 +200,10 @@ public class Model extends Observable {
                     for (String nodeName : newPath) {
                         nMap.get(nodeName).setVisited(true);
                     }
-                    newPaths.add(newPath);//schreibt currentPath+nachbar Liste in newPaths
+                    if (!newPath.isEmpty()) {
+                        newPaths.add(newPath);//schreibt currentPath+nachbar Liste in newPaths
+                    }
+
                     if (nMap.get(node).getTargettype().equals(target)) {
                         current = nMap.get(node);//setze current auf die aktuelle Node - damit while Schleife endet
                         currentPaths = new ArrayList<>(newPaths);//weist currentPaths alle Möglichen Wege zu die in newPaths gespeichert sind
@@ -194,7 +213,7 @@ public class Model extends Observable {
                     }
                 }
                 //damit keine weiteren Listen mehr gesucht (und ueberschrieben) werden
-                if (!found) {
+                if (!found && !newPaths.isEmpty()) {
                     currentPaths = new ArrayList<>(newPaths);
                 }
 
@@ -217,7 +236,7 @@ public class Model extends Observable {
         }
         System.out.println("");
         plane.setCurrentNode(nodeList.get(0));//Plane bekommt als currentNode die Letzte Stelle der Liste
-        plane.setNextNode(nodeList.get(0));
+        plane.setNextNode(nodeList.get(1));
         plane.setNodesList(nodeList);//weist dem Plane die fertige Node Liste zu
     }
 
@@ -238,7 +257,7 @@ public class Model extends Observable {
         if(!pWarteList.isEmpty()){ // testet ob wartende Flugzeuge vorhanden
             for(int i = 0; i < pWarteList.size(); i++){
                 //testet ob wartendes Flugzeug auf Spielfeld darf
-                if (pWarteList.get(i).getInittime() <= ticks && pExistList.size() < maxplanes) {
+                if (pWarteList.get(i).getInittime() <= ticks && pExistList.size() <= maxplanes) {
                     pExistList.add(pWarteList.get(i));
                     pWarteList.remove(i);
                 }
@@ -306,7 +325,7 @@ public class Model extends Observable {
     //Geht durch die existierenden Planes, setzt zum gegebenen Zeitpunkt Current- und NextNodes und führt die Breitensuche aus
     public void moveFromNodeToNode(){
         for (Planes p : pExistList) {
-            if (p.getNodesList().size() != 0) {
+            if (p.getNodesList().size() >= 1) {
                 p.setCurrentNode(p.getNodesList().get(0));
                 if (p.getNodesList().size() > 1) {
                     p.setNextNode(p.getNodesList().get(1));
@@ -316,6 +335,7 @@ public class Model extends Observable {
             else{
                 if (!(p.getWaypoints().isEmpty())) {
                     breadthSearch(p);
+                    p.getNodesList().remove(0);
                 }
                 else {
                    pFertigList.add(p);
@@ -323,6 +343,7 @@ public class Model extends Observable {
                     //pExistList.remove(p);
                 }
             }
+
         }
         //Todo löschen aus pExistList
         if(!pFertigList.isEmpty()) {
@@ -331,6 +352,7 @@ public class Model extends Observable {
             }
             pFertigList.clear();
         }
+
         //setChanged();
         //notifyObservers();
     }
@@ -341,6 +363,7 @@ public class Model extends Observable {
         generatorFlugzeuge();    //erstellt die Warteliste
         flugzeugeStarten(); // Schreibt Wartende Flugzeuge in die existliste wenn iniTime groß genug ist.
         this.moveFromNodeToNode();
-        System.out.println("Flugzeug an Node");
+        System.out.println("Tick: " + ticks);
+        //System.out.println("Flugzeug an Node");
     }
 }
